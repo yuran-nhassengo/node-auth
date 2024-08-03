@@ -13,9 +13,48 @@ const app = express();
 
 app.use(express.json());
 
+const User = require('./models/User');
+
 app.get('/',(req,res) =>{
     res.status(200).json({msg:'Bem vindo a nossa API'});88
 });
+
+app.post(`/auth/register`,async(req,res) =>{
+
+    const{name,email,password,confirmpassword} = req.body;
+
+    if(!name){
+        return res.status(422).json({msg:'O nome é obrigatorio'});
+    }
+    if(!email){
+        return res.status(422).json({msg:'O email é obrigatorio'});
+    }
+    if(!password){
+        return res.status(422).json({msg:'O password é obrigatorio'});
+    }
+    if(!confirmpassword){
+        return res.status(422).json({msg:'O confirm Password é obrigatorio'});
+    }
+
+
+    if( password !== confirmpassword){
+
+        return res.status(422).json({msg:'As Senhas são diferentes'});
+    }
+
+    const userExist = await User.findOne({email:email})
+
+    if(userExist){
+        return res.status(422).json({msg:'Por favor utilize outro Email!'});
+    }
+
+    const salt = await bcrypt.genSalt(12);
+
+    const passwordHash = await bcrypt.hash(password,salt);
+
+    
+
+})
 
 mongoose.connect(DB_URL=`mongodb+srv://${dbUser}:${dbPassword}@cluster1.hewl4v5.mongodb.net/authjwt?retryWrites=true&w=majority&appName=Cluster1`).
     then(() =>{
