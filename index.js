@@ -19,8 +19,46 @@ app.get('/',(req,res) =>{
     res.status(200).json({msg:'Bem vindo a nossa API'});88
 });
 
+app.get('/user',async(req,res) =>{
+    
+    const users = await User.find();
 
-app.get("/user/:id", async(req,res) =>{
+    const usData = users.map(user =>{
+        return{
+            id:user._id,
+            email:user.email
+        }
+    })
+
+    res.status(200).json({usData})
+})
+
+function checkToken(req,res,next){
+    const authHeader = req.headers['authorization'];
+    const token =authHeader && authHeader.split(" ")[1];
+
+    if(!token){
+        return res.status(401).json({msg:'acesso negado'}
+
+        )
+
+    }
+
+    try {
+
+        const secret = process.env.SECRET
+
+        jwt.verify(token,secret);
+        
+        next()
+        
+    } catch (error) {
+        return res.status(401).json({msg:'Token Invalido'} )
+    }
+}
+
+
+app.get("/user/:id",checkToken, async(req,res) =>{
 
     const id = req.params.id
 
@@ -30,7 +68,7 @@ app.get("/user/:id", async(req,res) =>{
         res.status(404).json({msg:"Usuario nao encontrado"})
     }
 
-    res.status).json({user})
+    res.status(200).json({user})
 })
 
 app.post(`/auth/register`,async(req,res) =>{
