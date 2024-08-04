@@ -52,7 +52,23 @@ app.post(`/auth/register`,async(req,res) =>{
 
     const passwordHash = await bcrypt.hash(password,salt);
 
-    
+    const user = new User({
+        name,
+        email,
+        password:passwordHash
+    })
+
+    try {
+        
+        await user.save();
+
+        res.status(201).json({msg:'Usuario Criado com sucesso!S'})
+
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({msg:"Ocorreu um erro ao tentar Inserir o Usuario"});
+    }
 
 })
 
