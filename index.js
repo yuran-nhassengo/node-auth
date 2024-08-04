@@ -72,6 +72,54 @@ app.post(`/auth/register`,async(req,res) =>{
 
 })
 
+app.post('/auth/user',async(req,res) =>{
+    const {email,password} = req.body
+
+    if(!email){
+        return res.status(422).json({msg:'O email é obrigatorio'});
+    }
+    if(!password){
+        return res.status(422).json({msg:'O password é obrigatorio'});
+    }
+
+    const user = await User.findOne({email:email})
+
+    if(!user){
+
+        return res.status(422).json({msg:'Usuario nao encontrado!'});
+
+    }
+
+    const checkPassword = await bcrypt.compare(password,user.password);
+
+    if(!checkPassword){
+        return res.status(404).json({msg:'Senha Invalida!'});
+    }
+
+    try {
+
+        const secret = process.env.SECRET
+
+        const token = jwt.sign(
+        {
+            id:user._id,
+        },
+        secret,
+    )
+
+        res.status(200).json({msg:'Autenticacao realizada com sucesso',token})
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg:'Aconteceu um erro no servidor, tente novamente mais tarde'});
+    }
+
+
+
+    
+})
+
 mongoose.connect(DB_URL=`mongodb+srv://${dbUser}:${dbPassword}@cluster1.hewl4v5.mongodb.net/authjwt?retryWrites=true&w=majority&appName=Cluster1`).
     then(() =>{
     console.log(`Conectado com sucesso!`);
