@@ -19,6 +19,20 @@ app.get('/',(req,res) =>{
     res.status(200).json({msg:'Bem vindo a nossa API'});88
 });
 
+
+app.get("/user/:id", async(req,res) =>{
+
+    const id = req.params.id
+
+    const user = await User.findById(id,'-password')
+
+    if(!user){
+        res.status(404).json({msg:"Usuario nao encontrado"})
+    }
+
+    res.status).json({user})
+})
+
 app.post(`/auth/register`,async(req,res) =>{
 
     const{name,email,password,confirmpassword} = req.body;
@@ -114,6 +128,8 @@ app.post('/auth/user',async(req,res) =>{
         res.status(500).json({
             msg:'Aconteceu um erro no servidor, tente novamente mais tarde'});
     }
+
+
 
 
 
